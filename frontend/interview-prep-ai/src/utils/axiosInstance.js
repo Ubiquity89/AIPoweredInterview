@@ -1,7 +1,13 @@
 import axios from "axios";
 
+// Use CORS proxy in development, direct URL in production
+const isDevelopment = process.env.NODE_ENV === 'development';
+const baseURL = isDevelopment 
+  ? 'https://cors-anywhere.herokuapp.com/https://aipoweredinterview.onrender.com'
+  : 'https://aipoweredinterview.onrender.com';
+
 const axiosInstance = axios.create({
-  baseURL: "https://aipoweredinterview.onrender.com",
+  baseURL,
   timeout: 80000,
   headers: {
     "Content-Type": "application/json",

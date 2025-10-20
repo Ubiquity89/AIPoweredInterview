@@ -16,13 +16,15 @@ const { generateInterviewQuestions, generateConceptExplanation } = require("./co
 const app = express();
 
 // Configure CORS with specific origins and headers
+// Update the allowedOrigins array to include your frontend domain
 const allowedOrigins = [
-  'http://localhost:5173',  // Vite dev server
-  'http://127.0.0.1:5173',  // Alternative localhost
-  'http://localhost:3000',  // Common React port
-  'http://127.0.0.1:3000',  // Alternative React port
-  'http://localhost:5174',  // Vite dev server (alternative port)
-  'http://127.0.0.1:5174',  // Vite dev server (alternative port)
+  'https://aipoweredinterview-frontend1.onrender.com',  // Your frontend domain
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://localhost:5174',
+  'http://127.0.0.1:5174'
 ];
 
 const corsOptions = {

@@ -66,7 +66,9 @@ const corsOptions = {
     'X-Requested-With',
     'Accept',
     'x-auth-token',
-    'Access-Control-Allow-Origin'
+    'Access-Control-Allow-Origin',
+    'Cache-Control',  // Add this line
+    'cache-control'   // And this line for case-sensitivity
   ],
   credentials: true,
   preflightContinue: false,

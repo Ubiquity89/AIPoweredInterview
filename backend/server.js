@@ -27,10 +27,10 @@ const { generateInterviewQuestions, generateConceptExplanation } = require("./co
 
 const app = express();
 
-// Configure CORS with specific origins and headers
-// Update the allowedOrigins array to include your frontend domain
+// Configure CORS with specific origins and wildcard support for Vercel
 const allowedOrigins = [
-  'https://ai-powered-interview-tau.vercel.app',  // Vercel frontend
+  'https://ai-powered-interview-tau.vercel.app',  // Production Vercel frontend
+  'https://ai-powered-interview-*.vercel.app',    // Vercel preview deployments
   'https://aipoweredinterview.onrender.com',      // Render backend
   'http://localhost:5173',
   'http://localhost:5174',
@@ -42,12 +42,22 @@ const corsOptions = {
     // Allow requests with no origin (like mobile apps, curl, etc.)
     if (!origin) return callback(null, true);
     
-    if (allowedOrigins.indexOf(origin) === -1) {
+    // Check if the origin matches any allowed pattern
+    const isAllowed = allowedOrigins.some(allowedOrigin => {
+      if (allowedOrigin.includes('*')) {
+        const regex = new RegExp('^' + allowedOrigin.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$');
+        return regex.test(origin);
+      }
+      return allowedOrigin === origin;
+    });
+
+    if (isAllowed) {
+      return callback(null, true);
+    } else {
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
       console.error('CORS error:', { origin, allowedOrigins });
       return callback(new Error(msg), false);
     }
-    return callback(null, true);
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: [

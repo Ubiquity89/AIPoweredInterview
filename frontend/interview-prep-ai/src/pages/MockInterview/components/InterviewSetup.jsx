@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
-import { FiChevronRight, FiCode, FiBriefcase, FiClock, FiAward } from 'react-icons/fi';
+// src/pages/MockInterview/components/InterviewSetup.jsx
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FiCode, FiBriefcase, FiAward } from 'react-icons/fi';
+import { useInterviewStore } from '../../../stores/useInterviewStore';
 
 const difficultyLevels = [
   { id: 'beginner', name: 'Beginner', description: 'Basic concepts and fundamentals' },
@@ -23,196 +26,141 @@ const interviewTypes = [
   { 
     id: 'system-design', 
     name: 'System Design', 
-    description: 'Design large-scale systems',
+    description: 'System architecture and design questions',
     icon: <FiAward className="w-6 h-6 text-purple-500" />
   },
 ];
 
-const InterviewSetup = ({ onStart }) => {
-  const [formData, setFormData] = useState({
-    type: 'technical',
-    difficulty: 'intermediate',
-    duration: 30,
-    language: 'javascript',
-    topics: [],
-  });
+const InterviewSetup = () => {
+  const interviewSettings = useInterviewStore((state) => state.interviewSettings);
+  const [selectedType, setSelectedType] = useState(interviewSettings?.type || '');
+  const [difficulty, setDifficulty] = useState(interviewSettings?.difficulty || 'intermediate');
+  const [role, setRole] = useState(interviewSettings?.role || '');
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const setInterviewState = useInterviewStore((state) => state.setInterviewState);
+  const startInterviewInStore = useInterviewStore((state) => state.startInterview);
 
-  const availableTopics = {
-    technical: ['Data Structures', 'Algorithms', 'OOP', 'Databases', 'APIs'],
-    behavioral: ['Teamwork', 'Leadership', 'Conflict Resolution', 'Time Management'],
-    'system-design': ['Scalability', 'Load Balancing', 'Caching', 'Database Design']
-  };
+  useEffect(() => {
+    if (interviewSettings) {
+      setSelectedType(interviewSettings.type || '');
+      setRole(interviewSettings.role || '');
+      setDifficulty(interviewSettings.difficulty || 'intermediate');
+    }
+  }, [interviewSettings]);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+  const handleStartInterview = async () => {
+    if (!selectedType || !role) {
+      alert('Please select an interview type and enter your role');
+      return;
+    }
     
-    if (type === 'checkbox') {
-      setFormData(prev => ({
-        ...prev,
-        topics: checked 
-          ? [...prev.topics, value]
-          : prev.topics.filter(topic => topic !== value)
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
+    setIsLoading(true);
+    
+    try {
+      // Save interview settings to the store
+      setInterviewState({
+        interviewSettings: {
+          type: selectedType,
+          role: role,
+          difficulty: difficulty
+        },
+        currentQuestion: null,
+        interviewHistory: [],
+        feedback: null
+      });
+      
+      // mark interview as active so the room route can load
+      startInterviewInStore();
+
+      // Navigate to the interview room
+      navigate('room');
+    } catch (error) {
+      console.error('Error starting interview:', error);
+      alert('Failed to start interview. Please try again.');
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onStart({
-      ...formData,
-      id: `interview-${Date.now()}`,
-      startedAt: new Date().toISOString(),
-    });
-  };
-
   return (
-    <div className="space-y-8">
-      <div className="text-center">
-        <h2 className="text-2xl font-semibold text-gray-800">Configure Your Interview</h2>
-        <p className="mt-2 text-gray-600">Select your preferences to start a personalized mock interview</p>
-      </div>
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">
+        <div className="text-center mb-12">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Mock Interview Setup</h1>
+          <p className="text-gray-600">Configure your interview settings to get started</p>
+        </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Interview Type</label>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="bg-white shadow rounded-lg p-6 mb-8">
+          <h2 className="text-xl font-semibold mb-6">Interview Type</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             {interviewTypes.map((type) => (
-              <label 
+              <div
                 key={type.id}
-                className={`relative p-4 border rounded-lg cursor-pointer transition-all duration-200 ${
-                  formData.type === type.id 
-                    ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200' 
-                    : 'border-gray-200 hover:border-gray-300'
+                className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                  selectedType === type.id
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-200 hover:border-blue-300'
                 }`}
+                onClick={() => setSelectedType(type.id)}
               >
-                <input
-                  type="radio"
-                  name="type"
-                  value={type.id}
-                  checked={formData.type === type.id}
-                  onChange={handleChange}
-                  className="sr-only"
-                />
-                <div className="flex items-center">
-                  <div className="mr-3">
-                    <div className="p-2 rounded-lg bg-white">
-                      {type.icon}
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900">{type.name}</h3>
-                    <p className="text-xs text-gray-500">{type.description}</p>
-                  </div>
+                <div className="flex items-center mb-2">
+                  {type.icon}
+                  <h3 className="ml-2 font-medium">{type.name}</h3>
                 </div>
-              </label>
+                <p className="text-sm text-gray-600">{type.description}</p>
+              </div>
             ))}
           </div>
-        </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Difficulty Level</label>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            {difficultyLevels.map((level) => (
-              <label 
-                key={level.id}
-                className={`relative p-4 border rounded-lg cursor-pointer ${
-                  formData.difficulty === level.id 
-                    ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200' 
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="difficulty"
-                  value={level.id}
-                  checked={formData.difficulty === level.id}
-                  onChange={handleChange}
-                  className="sr-only"
-                />
-                <div>
-                  <h3 className="text-sm font-medium text-gray-900">{level.name}</h3>
-                  <p className="text-xs text-gray-500">{level.description}</p>
+          <div className="mb-8">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Your Role/Position
+            </label>
+            <input
+              type="text"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              placeholder="e.g., Frontend Developer, Data Scientist, etc."
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <div className="mb-8">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Difficulty Level
+            </label>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {difficultyLevels.map((level) => (
+                <div
+                  key={level.id}
+                  className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    difficulty === level.id
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-blue-300'
+                  }`}
+                  onClick={() => setDifficulty(level.id)}
+                >
+                  <h3 className="font-medium">{level.name}</h3>
+                  <p className="text-sm text-gray-600">{level.description}</p>
                 </div>
-              </label>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <label htmlFor="duration" className="block text-sm font-medium text-gray-700">
-              Duration (minutes)
-            </label>
-            <select
-              id="duration"
-              name="duration"
-              value={formData.duration}
-              onChange={handleChange}
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+          <div className="flex justify-center">
+            <button
+              onClick={handleStartInterview}
+              disabled={!selectedType || !role || isLoading}
+              className={`px-8 py-3 rounded-lg text-white font-medium ${
+                !selectedType || !role || isLoading
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700'
+              }`}
             >
-              <option value={15}>15 minutes</option>
-              <option value={30}>30 minutes</option>
-              <option value={45}>45 minutes</option>
-              <option value={60}>60 minutes</option>
-            </select>
-          </div>
-          <div>
-            <label htmlFor="language" className="block text-sm font-medium text-gray-700">
-              Programming Language
-            </label>
-            <select
-              id="language"
-              name="language"
-              value={formData.language}
-              onChange={handleChange}
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-            >
-              <option value="javascript">JavaScript</option>
-              <option value="python">Python</option>
-              <option value="java">Java</option>
-              <option value="c++">C++</option>
-            </select>
+              {isLoading ? 'Starting...' : 'Start Mock Interview'}
+            </button>
           </div>
         </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Topics to Include</label>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {availableTopics[formData.type]?.map((topic) => (
-              <label key={topic} className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  value={topic}
-                  checked={formData.topics.includes(topic)}
-                  onChange={handleChange}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <span className="ml-2 text-sm text-gray-700">{topic}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        <div className="pt-4">
-          <button
-            type="submit"
-            disabled={formData.topics.length === 0}
-            className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-              formData.topics.length === 0
-                ? 'bg-blue-300 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
-            }`}
-          >
-            Start Mock Interview
-            <FiChevronRight className="ml-2 h-5 w-5" />
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   );
 };

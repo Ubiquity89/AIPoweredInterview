@@ -42,7 +42,7 @@ const App = () => {
             <Route path="/company-questions" element={<CompanyList />} />
             <Route path="/company-questions/:companyName" element={<CompanyQuestions />} />
             <Route path="/interview-prep/:sessionId" element={<InterviewPrep />} />
-            <Route path="/mock-interview" element={<MockInterview />} />
+            <Route path="/mock-interview/*" element={<MockInterview />} />
           </Route>
         </Routes>
         <Toaster

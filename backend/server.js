@@ -30,12 +30,11 @@ const app = express();
 // Configure CORS with specific origins and headers
 // Update the allowedOrigins array to include your frontend domain
 const allowedOrigins = [
-  'https://ai-powered-interview-5qm15h37m-ubiquity89s-projects.vercel.app', // Vercel frontend
-  'https://aipoweredinterview.onrender.com', // Render backend
+  'https://ai-powered-interview-tau.vercel.app',  // Vercel frontend
+  'https://aipoweredinterview.onrender.com',      // Render backend
   'http://localhost:5173',
   'http://localhost:5174',
-  'http://127.0.0.1:5173',
-  'http://127.0.0.1:5174'
+  'http://127.0.0.1:10000'
 ];
 
 const corsOptions = {
@@ -56,71 +55,12 @@ const corsOptions = {
     'Authorization',
     'X-Requested-With',
     'Accept',
-    'Accept-Language',
-    'Content-Length',
-    'Cache-Control',
-    'X-CSRF-Token',
-    'X-Forwarded-For',
-    'X-Forwarded-Proto',
-    'X-Forwarded-Port',
-    'X-Forwarded-Host',
-    'X-Forwarded-Prefix',
-    'X-Request-Id',
-    'X-Request-Start',
-    'X-Requested-With',
-    'X-Real-IP',
-    'X-HTTP-Method-Override',
-    'X-Forwarded-For',
-    'X-Forwarded-Host',
-    'X-Forwarded-Proto',
-    'X-Forwarded-SSL',
-    'X-Forwarded-Port',
-    'X-Forwarded-Prefix',
-    'X-Request-Id',
-    'X-Request-Start',
-    'X-Requested-With',
-    'X-Real-IP',
-    'X-HTTP-Method-Override',
-    'X-Forwarded-For',
-    'X-Forwarded-Host',
-    'X-Forwarded-Proto',
-    'X-Forwarded-SSL',
-    'X-Forwarded-Port',
-    'X-Forwarded-Prefix',
-    'X-Request-Id',
-    'X-Request-Start',
-    'X-Requested-With',
-    'X-Real-IP',
-    'X-HTTP-Method-Override',
-    'X-Forwarded-For',
-    'X-Forwarded-Host',
-    'X-Forwarded-Proto',
-    'X-Forwarded-SSL',
-    'X-Forwarded-Port',
-    'X-Forwarded-Prefix',
-    'X-Request-Id',
-    'X-Request-Start',
-    'X-Requested-With',
-    'X-Real-IP',
-    'X-HTTP-Method-Override',
-    'X-Forwarded-For',
-    'X-Forwarded-Host',
-    'X-Forwarded-Proto',
-    'X-Forwarded-SSL',
-    'X-Forwarded-Port',
-    'X-Forwarded-Prefix',
-    'X-Request-Id',
-    'X-Request-Start',
-    'X-Requested-With',
-    'X-Real-IP',
-    'X-HTTP-Method-Override',
-    'Origin',
-    'Access-Control-Allow-Headers',
-    'Access-Control-Request-Method'
+    'x-auth-token',
+    'Access-Control-Allow-Origin'
   ],
   credentials: true,
   preflightContinue: false,
-  optionsSuccessStatus: 204
+  optionsSuccessStatus: 200
 };
 
 // Connect to MongoDB
@@ -158,6 +98,9 @@ ensureDirExists(resumesDir);
 // Middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Enable CORS pre-flight for all routes
+app.options('*', cors(corsOptions));
 app.use(cors(corsOptions));
 app.use('/uploads', express.static(uploadsRootDir));
 

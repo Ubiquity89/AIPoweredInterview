@@ -30,12 +30,11 @@ const app = express();
 // Configure CORS with specific origins and headers
 // Update the allowedOrigins array to include your frontend domain
 const allowedOrigins = [
-  'https://aipoweredinterview-frontend1.onrender.com',  // Your frontend domain
+  'https://ai-powered-interview-5qm15h37m-ubiquity89s-projects.vercel.app', // Vercel frontend
+  'https://aipoweredinterview.onrender.com', // Render backend
   'http://localhost:5173',
-  'http://127.0.0.1:5173',
-  'http://localhost:3000',
-  'http://127.0.0.1:3000',
   'http://localhost:5174',
+  'http://127.0.0.1:5173',
   'http://127.0.0.1:5174'
 ];
 

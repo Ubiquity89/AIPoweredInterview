@@ -54,19 +54,9 @@ const ProfileInfoCard = () => {
   return (
     <div className='group relative'>
       <div className='flex items-center space-x-3 p-2 pr-4 hover:bg-gray-50 rounded-lg transition-colors duration-200'>
-        {user.profileImageUrl ? (
-          <div className='relative'>
-            <img 
-              src={user.profileImageUrl} 
-              alt={user.name || 'User'}
-              className='w-10 h-10 rounded-full border-2 border-white shadow-md object-cover transition-transform duration-200 group-hover:scale-105' 
-            />
-          </div>
-        ) : (
-          <div className={`${colorClass} w-10 h-10 rounded-full flex items-center justify-center font-semibold border-2 border-white shadow-md transition-all duration-200 group-hover:scale-105`}>
-            <span className='relative'>{getUserInitials()}</span>
-          </div>
-        )}
+        <div className={`${colorClass} w-10 h-10 rounded-full flex items-center justify-center font-semibold border-2 border-white shadow-md transition-all duration-200 group-hover:scale-105`}>
+          <span className='relative'>{getUserInitials()}</span>
+        </div>
         
         <div className='flex flex-col justify-center'>
           <div className='text-sm font-medium text-gray-800 leading-tight'>Hello, {user.name?.split(' ')[0] || 'User'}</div>

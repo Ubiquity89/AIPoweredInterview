@@ -1,4 +1,16 @@
-require("dotenv").config();
+// Load environment variables
+require('dotenv').config();
+
+// Basic configuration
+const PORT = process.env.PORT || 5001;
+const NODE_ENV = process.env.NODE_ENV || 'development';
+
+console.log('Starting server with configuration:');
+console.log('- Port:', PORT);
+console.log('- Environment:', NODE_ENV);
+console.log('- MongoDB URI:', process.env.MONGO_URI ? '***' : 'Not set');
+
+// Initialize Express
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
@@ -115,32 +127,40 @@ const corsOptions = {
 // Connect to MongoDB
 connectDB();
 
-// Create uploads directory if it doesn't exist
-const uploadsDir = path.join(__dirname, 'uploads/resumes');
-console.log('Ensuring uploads directory exists at:', uploadsDir);
-try {
-  if (!fs.existsSync(uploadsDir)) {
-    console.log('Creating uploads directory...');
-    fs.mkdirSync(uploadsDir, { recursive: true });
-    console.log('Uploads directory created successfully');
-  } else {
-    console.log('Uploads directory already exists');
+// Create uploads directories if they don't exist
+const uploadsRootDir = path.join(__dirname, 'uploads');
+const resumesDir = path.join(uploadsRootDir, 'resumes');
+
+const ensureDirExists = (dirPath) => {
+  console.log('Ensuring directory exists at:', dirPath);
+  try {
+    if (!fs.existsSync(dirPath)) {
+      console.log(`Creating directory: ${dirPath}`);
+      fs.mkdirSync(dirPath, { recursive: true });
+      console.log('Directory created successfully');
+    } else {
+      console.log('Directory already exists');
+    }
+
+    // Test write permissions
+    const testFile = path.join(dirPath, 'test-permission.txt');
+    fs.writeFileSync(testFile, 'test', 'utf8');
+    fs.unlinkSync(testFile);
+    console.log('Write permissions verified');
+  } catch (error) {
+    console.error(`Error setting up directory ${dirPath}:`, error);
+    process.exit(1);
   }
-  
-  // Test write permissions
-  const testFile = path.join(uploadsDir, 'test-permission.txt');
-  fs.writeFileSync(testFile, 'test', 'utf8');
-  fs.unlinkSync(testFile);
-  console.log('Write permissions verified in uploads directory');
-} catch (error) {
-  console.error('Error setting up uploads directory:', error);
-  process.exit(1);
-}
+};
+
+ensureDirExists(uploadsRootDir);
+ensureDirExists(resumesDir);
 
 // Middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cors(corsOptions));
+app.use('/uploads', express.static(uploadsRootDir));
 
 // Root route
 app.get("/", (req, res) => {
@@ -192,12 +212,25 @@ app.use((err, req, res, next) => {
   res.status(500).json({
     success: false,
     message: 'Internal server error',
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    error: NODE_ENV === 'development' ? err.message : undefined
   });
 });
 
-// Start Server 
-const PORT = process.env.PORT || 5001;
+// Create HTTP server
+const server = app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Environment: ${NODE_ENV}`);
+  console.log('Allowed origins:', allowedOrigins);
+});
+
+// Handle server errors
+server.on('error', (err) => {
+  console.error('Server error:', err);
+  if (err.code === 'EADDRINUSE') {
+    console.error(`Port ${PORT} is already in use. Please free the port or use a different one.`);
+  }
+  process.exit(1);
+});
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
@@ -208,18 +241,6 @@ process.on('uncaughtException', (error) => {
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  process.exit(1);
-});
-
-// Start the server
-const server = app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log('Allowed origins:', allowedOrigins);
-}).on('error', (err) => {
-  console.error('Server error:', err);
-  if (err.code === 'EADDRINUSE') {
-    console.error(`Port ${PORT} is already in use. Please free the port or use a different one.`);
-  }
   process.exit(1);
 });
 

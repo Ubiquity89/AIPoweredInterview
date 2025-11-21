@@ -22,13 +22,23 @@ const interviewTypes = [
     name: 'Behavioral', 
     description: 'Soft skills and situational questions',
     icon: <FiBriefcase className="w-6 h-6 text-green-500" />
-  },
-  { 
-    id: 'system-design', 
-    name: 'System Design', 
-    description: 'System architecture and design questions',
-    icon: <FiAward className="w-6 h-6 text-purple-500" />
-  },
+  }
+];
+
+// Available roles for the dropdown
+const availableRoles = [
+  'Frontend Developer',
+  'Backend Developer',
+  'Full Stack Developer',
+  'Data Scientist',
+  'DevOps Engineer',
+  'UI/UX Designer',
+  'Product Manager',
+  'QA Engineer',
+  'Mobile Developer',
+  'Data Engineer',
+  'Machine Learning Engineer',
+  'Cloud Architect'
 ];
 
 const InterviewSetup = () => {
@@ -38,7 +48,7 @@ const InterviewSetup = () => {
   const [role, setRole] = useState(interviewSettings?.role || '');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const setInterviewState = useInterviewStore((state) => state.setInterviewState);
+  const setInterviewSettings = useInterviewStore((state) => state.setInterviewSettings);
   const startInterviewInStore = useInterviewStore((state) => state.startInterview);
 
   useEffect(() => {
@@ -51,7 +61,7 @@ const InterviewSetup = () => {
 
   const handleStartInterview = async () => {
     if (!selectedType || !role) {
-      alert('Please select an interview type and enter your role');
+      alert('Please select an interview type and role');
       return;
     }
     
@@ -59,22 +69,25 @@ const InterviewSetup = () => {
     
     try {
       // Save interview settings to the store
-      setInterviewState({
-        interviewSettings: {
-          type: selectedType,
-          role: role,
-          difficulty: difficulty
-        },
-        currentQuestion: null,
-        interviewHistory: [],
-        feedback: null
+      setInterviewSettings({
+        type: selectedType,
+        role: role,
+        difficulty: difficulty
       });
       
       // mark interview as active so the room route can load
       startInterviewInStore();
 
-      // Navigate to the interview room
-      navigate('room');
+      // Navigate to the interview room with interview settings
+      navigate('room', { 
+        state: { 
+          interviewSettings: {
+            type: selectedType,
+            role: role,
+            difficulty: difficulty
+          }
+        } 
+      });
     } catch (error) {
       console.error('Error starting interview:', error);
       alert('Failed to start interview. Please try again.');
@@ -91,7 +104,7 @@ const InterviewSetup = () => {
 
         <div className="bg-white shadow rounded-lg p-6 mb-8">
           <h2 className="text-xl font-semibold mb-6">Interview Type</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             {interviewTypes.map((type) => (
               <div
                 key={type.id}
@@ -113,15 +126,20 @@ const InterviewSetup = () => {
 
           <div className="mb-8">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Your Role/Position
+              Select Your Role
             </label>
-            <input
-              type="text"
+            <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              placeholder="e.g., Frontend Developer, Data Scientist, etc."
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-            />
+            >
+              <option value="">Select a role</option>
+              {availableRoles.map((role) => (
+                <option key={role} value={role}>
+                  {role}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="mb-8">

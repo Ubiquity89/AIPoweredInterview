@@ -16,8 +16,16 @@ export const useInterviewStore = create((set) => ({
   },
 
   // Actions
-  startInterview: () => set({ isInterviewActive: true, error: null }),
-  endInterview: () => set({ isInterviewActive: false }),
+  startInterview: () => set({ 
+    isInterviewActive: true, 
+    error: null,
+    interviewHistory: [],
+    currentQuestion: null,
+    feedback: null
+  }),
+  endInterview: () => set({ 
+    isInterviewActive: false 
+  }),
   setCurrentQuestion: (question) => set({ currentQuestion: question }),
   addToHistory: (entry) => set((state) => ({
     interviewHistory: [...state.interviewHistory, entry]
@@ -25,12 +33,10 @@ export const useInterviewStore = create((set) => ({
   setFeedback: (feedback) => set({ feedback }),
   setLoading: (isLoading) => set({ isLoading }),
   setError: (error) => set({ error }),
-  setInterviewState: (newState) => set((state) => ({
-    ...state,
-    ...newState,
+  setInterviewSettings: (settings) => set((state) => ({
     interviewSettings: {
       ...state.interviewSettings,
-      ...(newState.interviewSettings || {})
+      ...settings
     }
   }))
 }));

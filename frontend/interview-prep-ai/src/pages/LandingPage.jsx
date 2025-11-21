@@ -166,7 +166,12 @@ const LandingPage = () => {
               <LuArrowRight className="ml-3 w-5 h-5 animate-pulse" />
             </button>
             <button 
-              onClick={() => window.scrollTo({ top: document.getElementById('features').offsetTop - 100, behavior: 'smooth' })}
+              onClick={() => {
+                const section = document.getElementById('features');
+                if (section) {
+                  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+              }}
               className="px-8 py-5 bg-white text-gray-800 border-2 border-gray-200 hover:border-purple-300 rounded-xl text-lg font-medium transition-all hover:shadow-lg flex items-center justify-center"
             >
               <LuSparkles className="mr-3 w-5 h-5 text-purple-600" />
@@ -255,7 +260,7 @@ const LandingPage = () => {
 </section>
 
       {/* Features Section */}
-      <section className="py-16 bg-gradient-to-b from-white to-gray-50">
+      <section id="features" className="py-16 bg-gradient-to-b from-white to-gray-50">
         <div className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
           <div className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" style={{
             clipPath: 'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
@@ -343,11 +348,14 @@ const LandingPage = () => {
           </div>
           
           <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-2 mb-4 md:mb-0">
-              <span className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
-                InterviewPrepAI
-              </span>
-              <span className="text-gray-400">© {new Date().getFullYear()}</span>
+            <div className="flex flex-col items-center md:items-start mb-4 md:mb-0">
+              <div className="flex items-center space-x-2">
+                <span className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
+                  InterviewPrepAI
+                </span>
+                <span className="text-gray-400">&copy; {new Date().getFullYear()}</span>
+              </div>
+              <p className="text-sm text-gray-400 mt-1">Made by Ubiquity</p>
             </div>
             
             <div className="flex space-x-6">
